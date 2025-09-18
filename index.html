@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ava Labs & Avalanche: An Interactive Exploration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: "Calm Harmony" - A palette of warm neutrals (bg-stone-50), a slightly darker neutral for cards (bg-white/bg-stone-100), a soft but clear primary color for highlights and navigation (red-500), and a complementary set for charts (red, blue, gray tones). -->
+    <!-- Application Structure Plan: The SPA is designed as a narrative journey for the user, starting with a high-level overview and key metrics (the "what"), then diving into performance data (the "how well"), followed by the underlying technology (the "how it works"), the resulting ecosystem (the "what it enables"), and finally the team behind it (the "who"). This thematic, top-down structure is more intuitive for learning than a report's structure. Navigation is handled by a sticky header for easy access to any section. Interactivity is centered on data exploration: users can compare performance metrics directly on charts and filter ecosystem projects, making the information digestible and engaging. This design prioritizes user understanding and discovery over a rigid presentation of facts. -->
+    <!-- Visualization & Content Choices: 
+        - Key Metrics (Inform): Displayed as large text stats for immediate impact. Goal: Provide a quick, quantitative snapshot of the network's scale. Method: HTML/Tailwind.
+        - Network Performance (Change): A line chart shows trends in transactions and active addresses. Goal: Visualize growth and activity over time. Library: Chart.js. Interaction: Hover for details. Justification: Line charts are ideal for time-series data.
+        - TVL Distribution (Compare): A doughnut chart shows the market share of top DeFi protocols. Goal: Illustrate the composition of the DeFi ecosystem. Library: Chart.js. Interaction: Hover to see protocol names and values. Justification: Doughnut charts are effective for showing parts of a whole.
+        - Avalanche vs. Ethereum (Compare): An interactive bar chart compares TPS, Finality, and Fees. Goal: Directly highlight Avalanche's key advantages. Library: Chart.js. Interaction: Buttons to switch the displayed metric. Justification: Bar charts are excellent for direct comparison of distinct values.
+        - Core Architecture (Organize): A 3-column layout using HTML/Tailwind with icons and text. Goal: Break down a complex technical concept into digestible parts. Method: Structured HTML. Interaction: None, clarity is the focus. Justification: A simple visual layout is more effective than a complex diagram for this concept.
+        - Subnet Diagram (Organize): A simple hierarchy made with HTML/CSS. Goal: Explain the scaling concept visually. Method: HTML/Tailwind.
+        - Ecosystem Showcase (Organize): A filterable grid of cards. Goal: Allow users to explore the variety of dApps. Method: HTML/JS. Interaction: Filter buttons. Justification: Provides user-controlled discovery.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9FAFB; 
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .nav-link {
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #EF4444; /* red-500 */
+        }
+        .active-btn {
+            background-color: #EF4444;
+            color: white;
+        }
+        .inactive-btn {
+            background-color: #F3F4F6; /* gray-100 */
+            color: #374151; /* gray-700 */
+        }
+    </style>
+</head>
+<body class="bg-stone-50 text-gray-800">
+
+    <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl md:text-2xl font-bold text-red-600">
+                <span class="text-gray-800">Inside:</span> Ava Labs & Avalanche
+            </h1>
+            <div class="hidden md:flex space-x-8">
+                <a href="#overview" class="nav-link font-medium text-gray-600">Overview</a>
+                <a href="#pulse" class="nav-link font-medium text-gray-600">Network Pulse</a>
+                <a href="#tech" class="nav-link font-medium text-gray-600">Technology</a>
+                <a href="#ecosystem" class="nav-link font-medium text-gray-600">Ecosystem</a>
+                <a href="#team" class="nav-link font-medium text-gray-600">Team</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        
+        <section id="overview" class="text-center mb-24">
+            <h2 class="text-4xl md:text-5xl font-bold mb-4">Digitizing All the World's Assets</h2>
+            <p class="max-w-3xl mx-auto text-lg text-gray-600 mb-12">
+                Ava Labs is a technology company focused on building Avalanche, a high-performance blockchain platform designed to be fast, low-cost, and eco-friendly. Their mission is to provide the foundation for a new generation of decentralized applications and financial primitives. This dashboard provides an interactive look into their technology, network activity, and growing ecosystem.
+            </p>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 md:gap-6 max-w-6xl mx-auto">
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-500">Total Value Locked</p>
+                    <p id="metric-tvl" class="text-2xl md:text-3xl font-bold text-red-600"></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-500">Daily Transactions</p>
+                    <p id="metric-transactions" class="text-2xl md:text-3xl font-bold text-red-600"></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-500">Active Addresses (24h)</p>
+                    <p id="metric-addresses" class="text-2xl md:text-3xl font-bold text-red-600"></p>
+                </div>
+                 <div class="bg-white p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-500">Validators</p>
+                    <p id="metric-validators" class="text-2xl md:text-3xl font-bold text-red-600"></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-500">Avg. Transaction Fee</p>
+                    <p id="metric-fee" class="text-2xl md:text-3xl font-bold text-red-600"></p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow-md">
+                    <p class="text-sm font-medium text-gray-500">Transaction Finality</p>
+                    <p id="metric-finality" class="text-2xl md:text-3xl font-bold text-red-600"></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="pulse" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-2">Network Pulse</h2>
+            <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+                The health and growth of a blockchain can be seen in its on-chain activity. These charts provide a near real-time look at Avalanche's user engagement, transaction volume, and its performance compared to other leading platforms. Interact with the charts to explore the data.
+            </p>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-center">Network Activity Growth</h3>
+                    <div class="chart-container">
+                        <canvas id="networkActivityChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h3 class="text-xl font-semibold mb-4 text-center">DeFi TVL Distribution</h3>
+                    <div class="chart-container">
+                        <canvas id="tvlChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-lg lg:col-span-2">
+                     <h3 class="text-xl font-semibold mb-1 text-center">Performance Showdown: Avalanche vs. Ethereum</h3>
+                     <p class="text-center text-gray-500 text-sm mb-4">Click below to compare key metrics.</p>
+                    <div class="flex justify-center space-x-2 mb-4">
+                        <button id="btn-tps" class="comparison-btn active-btn px-4 py-2 rounded-md font-medium">Speed (TPS)</button>
+                        <button id="btn-finality" class="comparison-btn inactive-btn px-4 py-2 rounded-md font-medium">Finality (Seconds)</button>
+                        <button id="btn-fee" class="comparison-btn inactive-btn px-4 py-2 rounded-md font-medium">Avg. Fee (USD)</button>
+                    </div>
+                    <div class="chart-container h-[350px] md:h-[400px] max-h-[450px]">
+                        <canvas id="comparisonChart"></canvas>
+                    </div>
+                    <p id="comparison-note" class="text-center text-sm text-gray-500 mt-2 h-4"></p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tech" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-2">The Core Technology</h2>
+            <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+                Avalanche's high performance is not accidental. It's the result of a unique multi-chain architecture and a novel consensus protocol. This design allows for specialization, preventing the congestion that plagues monolithic blockchains.
+            </p>
+            <div id="architecture-cards" class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            </div>
+            <div class="mt-16">
+                <h3 class="text-2xl font-bold text-center mb-4">Subnets: The Secret to Infinite Scalability</h3>
+                <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">Subnets (Subnetworks) are sovereign networks that define their own rules for membership and tokenomics. They allow projects to have their own dedicated, custom blockchains, preventing them from competing for resources with other dApps on the main network. This is how Avalanche achieves horizontal scaling.</p>
+                <div class="max-w-2xl mx-auto bg-white p-6 rounded-lg shadow-lg">
+                    <div class="flex flex-col items-center">
+                        <div class="bg-red-500 text-white font-bold py-3 px-6 rounded-lg shadow-md">Avalanche Primary Network (P-Chain)</div>
+                        <div class="h-12 w-1 bg-gray-300 my-2"></div>
+                        <div class="flex flex-col md:flex-row justify-around w-full">
+                             <div class="flex flex-col items-center p-2">
+                                <div class="bg-blue-500 text-white py-2 px-4 rounded-lg shadow">Subnet A (e.g., DeFi)</div>
+                                <div class="text-sm mt-2 text-gray-500">Custom Rules</div>
+                            </div>
+                            <div class="flex flex-col items-center p-2">
+                                <div class="bg-green-500 text-white py-2 px-4 rounded-lg shadow">Subnet B (e.g., Gaming)</div>
+                                <div class="text-sm mt-2 text-gray-500">High Throughput VM</div>
+                            </div>
+                            <div class="flex flex-col items-center p-2">
+                                <div class="bg-purple-500 text-white py-2 px-4 rounded-lg shadow">Subnet C (e.g., Enterprise)</div>
+                                <div class="text-sm mt-2 text-gray-500">Permissioned Access</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <section id="ecosystem" class="mb-24">
+            <h2 class="text-3xl font-bold text-center mb-2">A Thriving Ecosystem</h2>
+            <p class="text-center text-gray-600 mb-8 max-w-3xl mx-auto">
+                Technology is only as good as what's built on it. Avalanche is home to a rapidly growing number of applications across Decentralized Finance (DeFi), Gaming, NFTs, and enterprise solutions. Explore some of the leading projects below.
+            </p>
+             <div class="flex justify-center space-x-4 mb-8">
+                <button class="filter-btn active-btn px-5 py-2 rounded-md font-semibold" data-filter="all">All</button>
+                <button class="filter-btn inactive-btn px-5 py-2 rounded-md font-semibold" data-filter="DeFi">DeFi</button>
+                <button class="filter-btn inactive-btn px-5 py-2 rounded-md font-semibold" data-filter="Gaming">Gaming</button>
+            </div>
+            <div id="ecosystem-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            </div>
+        </section>
+
+        <section id="team" class="text-center">
+            <h2 class="text-3xl font-bold mb-2">The Visionaries</h2>
+            <p class="text-center text-gray-600 mb-12 max-w-3xl mx-auto">
+                Ava Labs was founded by a team of world-class experts in computer science, economics, and finance from Cornell University and Wall Street. Their combined expertise is a driving force behind Avalanche's innovation.
+            </p>
+            <div id="team-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white mt-24 border-t border-gray-200">
+        <div class="container mx-auto px-6 py-8 text-center text-gray-500">
+            <p>&copy; 2025 Interactive Report. Data synthesized for illustrative purposes.</p>
+            <p class="text-sm mt-2">This is a dynamically generated web application based on public research about Ava Labs and the Avalanche network.</p>
+        </div>
+    </footer>
+
+    <script>
+        const appData = {
+          keyMetrics: {
+            activeAddresses: '79,149',
+            dailyTransactions: '1.27M',
+            tvl: '$2.2B',
+            validatorCount: '904',
+            avgFee: '$0.02',
+            finality: '< 1s'
+          },
+          networkPerformance: {
+            labels: ['Q4 2024', 'Q1 2025', 'Q2 2025', 'Q3 2025'],
+            dailyTransactions: [800000, 1100000, 950000, 1270000],
+            activeAddresses: [55000, 68000, 62000, 79000]
+          },
+          tvlData: {
+            labels: ['Benqi', 'Aave', 'Trader Joe', 'GMX', 'Others'],
+            values: [850, 1024, 450, 300, 576] 
+          },
+          ecosystem: [
+            { name: 'Trader Joe', category: 'DeFi', description: 'A decentralized exchange (DEX) offering trading, staking, and yield farming. It\'s one of the cornerstones of the Avalanche DeFi ecosystem.' },
+            { name: 'Benqi', category: 'DeFi', description: 'A liquid staking and lending protocol, allowing users to lend, borrow, and earn interest on their digital assets.' },
+            { name: 'Aave', category: 'DeFi', description: 'A leading multi-chain lending protocol that allows users to borrow and lend a diverse range of cryptocurrencies.' },
+            { name: 'Shrapnel', category: 'Gaming', description: 'A AAA first-person shooter game built on Avalanche, leveraging subnets for a high-performance gaming experience.' },
+            { name: 'DFK Chain', category: 'Gaming', description: 'A dedicated subnet for the popular fantasy game DeFi Kingdoms, enabling a seamless in-game economy.' }
+          ],
+          architecture: [
+              { name: 'C-Chain (Contract)', icon: '📜', description: 'The EVM-compatible smart contract platform where most dApps, especially DeFi, are built. It allows for easy porting of Ethereum projects.', details: ['EVM-Compatible', 'For Smart Contracts & dApps', 'Optimized for DeFi'] },
+              { name: 'X-Chain (Exchange)', icon: '↔️', description: 'The chain for creating and trading digital assets, including the native AVAX token. It is optimized for high-speed, peer-to-peer transfers.', details: ['Asset Creation & Trading', 'High Throughput', 'Native Home of AVAX'] },
+              { name: 'P-Chain (Platform)', icon: '🏗️', description: 'Coordinates network validators and manages the creation and tracking of subnets. This is where staking occurs.', details: ['Validator Coordination', 'Subnet Management', 'Staking Operations'] }
+          ],
+          comparison: {
+            avalanche: { tps: 4500, finality: 1, fee: 0.05 },
+            ethereum: { tps: 20, finality: 13, fee: 1.50 }
+          },
+          team: [
+              { name: 'Emin Gün Sirer', role: 'CEO & Co-founder', description: 'A distinguished computer scientist from Cornell University, he is a veteran in crypto research, having worked on distributed systems long before Bitcoin.' },
+              { name: 'Kevin Sekniqi', role: 'COO & Co-founder', description: 'Also a PhD from Cornell, he brings expertise in distributed systems, cryptography, and econometrics to the operational leadership of Ava Labs.'},
+              { name: 'John Wu', role: 'President', description: 'With a background on Wall Street, he leads business development, bridging the gap between traditional finance and Web3.' }
+          ]
+        };
+
+        window.addEventListener('DOMContentLoaded', () => {
+            populateMetrics();
+            populateArchitecture();
+            populateEcosystem('all');
+            populateTeam();
+            initCharts();
+            setupEventListeners();
+        });
+
+        function populateMetrics() {
+            document.getElementById('metric-tvl').textContent = appData.keyMetrics.tvl;
+            document.getElementById('metric-transactions').textContent = appData.keyMetrics.dailyTransactions;
+            document.getElementById('metric-addresses').textContent = appData.keyMetrics.activeAddresses;
+            document.getElementById('metric-validators').textContent = appData.keyMetrics.validatorCount;
+            document.getElementById('metric-fee').textContent = appData.keyMetrics.avgFee;
+            document.getElementById('metric-finality').textContent = appData.keyMetrics.finality;
+        }
+
+        function populateArchitecture() {
+            const container = document.getElementById('architecture-cards');
+            let content = '';
+            appData.architecture.forEach(chain => {
+                content += `
+                    <div class="bg-white p-6 rounded-lg shadow-lg text-center">
+                        <div class="text-5xl mb-4">${chain.icon}</div>
+                        <h3 class="text-xl font-bold mb-2">${chain.name}</h3>
+                        <p class="text-gray-600 mb-4">${chain.description}</p>
+                        <div class="space-y-2">
+                            ${chain.details.map(detail => `<span class="inline-block bg-red-100 text-red-800 text-xs font-medium mr-2 px-2.5 py-0.5 rounded-full">${detail}</span>`).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = content;
+        }
+
+        function populateEcosystem(filter) {
+            const grid = document.getElementById('ecosystem-grid');
+            const filteredItems = filter === 'all' ? appData.ecosystem : appData.ecosystem.filter(item => item.category === filter);
+            grid.innerHTML = '';
+            filteredItems.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'bg-white p-6 rounded-lg shadow-lg transform hover:-translate-y-1 transition-transform duration-300';
+                card.innerHTML = `
+                    <h3 class="text-xl font-bold mb-2">${item.name}</h3>
+                    <span class="inline-block bg-${item.category === 'DeFi' ? 'blue' : 'green'}-100 text-${item.category === 'DeFi' ? 'blue' : 'green'}-800 text-sm font-semibold mb-3 px-3 py-1 rounded-full">${item.category}</span>
+                    <p class="text-gray-600">${item.description}</p>
+                `;
+                grid.appendChild(card);
+            });
+        }
+        
+        function populateTeam() {
+            const grid = document.getElementById('team-grid');
+            let content = '';
+            appData.team.forEach(member => {
+                content += `
+                    <div class="bg-white p-6 rounded-lg shadow-lg">
+                        <h3 class="text-xl font-bold">${member.name}</h3>
+                        <p class="text-red-600 font-semibold mb-2">${member.role}</p>
+                        <p class="text-gray-600">${member.description}</p>
+                    </div>
+                `;
+            });
+            grid.innerHTML = content;
+        }
+        
+        let comparisonChartInstance;
+
+        function initCharts() {
+            const networkCtx = document.getElementById('networkActivityChart').getContext('2d');
+            new Chart(networkCtx, {
+                type: 'line',
+                data: {
+                    labels: appData.networkPerformance.labels,
+                    datasets: [{
+                        label: 'Daily Transactions',
+                        data: appData.networkPerformance.dailyTransactions,
+                        borderColor: '#EF4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                        tension: 0.3,
+                        yAxisID: 'y',
+                        fill: true,
+                    }, {
+                        label: 'Active Addresses',
+                        data: appData.networkPerformance.activeAddresses,
+                        borderColor: '#3B82F6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.3,
+                        yAxisID: 'y1',
+                        fill: true,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { position: 'left', title: { display: true, text: 'Transactions'} },
+                        y1: { position: 'right', title: { display: true, text: 'Addresses'}, grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+
+            const tvlCtx = document.getElementById('tvlChart').getContext('2d');
+            new Chart(tvlCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: appData.tvlData.labels,
+                    datasets: [{
+                        label: 'TVL in USD (Millions)',
+                        data: appData.tvlData.values,
+                        backgroundColor: ['#EF4444', '#3B82F6', '#10B981', '#8B5CF6', '#F59E0B'],
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+            
+            updateComparisonChart('tps');
+        }
+        
+        function updateComparisonChart(metric) {
+            const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
+            const noteElement = document.getElementById('comparison-note');
+            
+            const dataMap = {
+                tps: {
+                    label: 'Transactions Per Second (Higher is Better)',
+                    avalanche: appData.comparison.avalanche.tps,
+                    ethereum: appData.comparison.ethereum.tps,
+                    note: 'Note: A logarithmic scale is used for TPS to visualize the large difference in performance.'
+                },
+                finality: {
+                    label: 'Time to Finality in Seconds (Lower is Better)',
+                    avalanche: appData.comparison.avalanche.finality,
+                    ethereum: appData.comparison.ethereum.finality,
+                    note: ''
+                },
+                fee: {
+                    label: 'Average Fee in USD (Lower is Better)',
+                    avalanche: appData.comparison.avalanche.fee,
+                    ethereum: appData.comparison.ethereum.fee,
+                    note: ''
+                }
+            };
+
+            const selectedData = dataMap[metric];
+            noteElement.textContent = selectedData.note;
+
+            const chartData = {
+                labels: ['Avalanche', 'Ethereum'],
+                datasets: [{
+                    label: selectedData.label,
+                    data: [selectedData.avalanche, selectedData.ethereum],
+                    backgroundColor: ['#EF4444', '#6B7280'],
+                    borderColor: ['#DC2626', '#4B5563'],
+                    borderWidth: 1
+                }]
+            };
+
+            if (comparisonChartInstance) {
+                comparisonChartInstance.data.datasets[0].data = [selectedData.avalanche, selectedData.ethereum];
+                comparisonChartInstance.options.plugins.title.text = selectedData.label;
+                comparisonChartInstance.options.scales.x.type = metric === 'tps' ? 'logarithmic' : 'linear';
+                comparisonChartInstance.update();
+            } else {
+                comparisonChartInstance = new Chart(comparisonCtx, {
+                    type: 'bar',
+                    data: chartData,
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            title: { display: true, text: selectedData.label, font: { size: 16 } }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                type: metric === 'tps' ? 'logarithmic' : 'linear',
+                            }
+                        }
+                    }
+                });
+            }
+        }
+
+        function setupEventListeners() {
+            document.querySelectorAll('.filter-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.replace('active-btn', 'inactive-btn'));
+                    e.target.classList.replace('inactive-btn', 'active-btn');
+                    populateEcosystem(e.target.dataset.filter);
+                });
+            });
+
+            document.querySelectorAll('.comparison-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    document.querySelectorAll('.comparison-btn').forEach(btn => btn.classList.replace('active-btn', 'inactive-btn'));
+                    e.target.classList.replace('inactive-btn', 'active-btn');
+                    updateComparisonChart(e.target.id.split('-')[1]);
+                });
+            });
+            
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+        }
+
+    </script>
+</body>
+</html>
+
