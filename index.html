@@ -3,31 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ava Labs & Avalanche: An Interactive Exploration</title>
+    <title>Avalanche Strategic Report Q4 2025</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Chosen Palette: "Calm Harmony" - A palette of warm neutrals (bg-stone-50), a slightly darker neutral for cards (bg-white/bg-stone-100), a soft but clear primary color for highlights and navigation (red-500), and a complementary set for charts (red, blue, gray tones). -->
-    <!-- Application Structure Plan: The SPA is designed as a narrative journey for the user, starting with a high-level overview and key metrics (the "what"), then diving into performance data (the "how well"), followed by the underlying technology (the "how it works"), the resulting ecosystem (the "what it enables"), and finally the team behind it (the "who"). This thematic, top-down structure is more intuitive for learning than a report's structure. Navigation is handled by a sticky header for easy access to any section. Interactivity is centered on data exploration: users can compare performance metrics directly on charts and filter ecosystem projects, making the information digestible and engaging. This design prioritizes user understanding and discovery over a rigid presentation of facts. -->
+    <!-- Chosen Palette: Calm Harmony -->
+    <!-- Application Structure Plan: A single-page, multi-section dashboard. A sticky top nav (Strategic Overview, Institutional & RWA, Enterprise & AI, Ecosystem Metrics) allows non-linear exploration, ideal for an interview context. The 'Strategic Overview' acts as an executive summary with key stats and a toggle for leadership commentary. 'Institutional & RWA' is the core business deep-dive, using an interactive list for partner details and highlighting the new AVAT entity. 'Enterprise & AI' and 'Ecosystem Metrics' provide supporting proof points for the main strategy using grids and charts. This structure prioritizes the dominant 'Institutional/RWA' narrative and makes key data points easily accessible. -->
     <!-- Visualization & Content Choices: 
-        - Key Metrics (Inform): Displayed as large text stats for immediate impact. Goal: Provide a quick, quantitative snapshot of the network's scale. Method: HTML/Tailwind.
-        - Network Performance (Change): A line chart shows trends in transactions and active addresses. Goal: Visualize growth and activity over time. Library: Chart.js. Interaction: Hover for details. Justification: Line charts are ideal for time-series data.
-        - TVL Distribution (Compare): A doughnut chart shows the market share of top DeFi protocols. Goal: Illustrate the composition of the DeFi ecosystem. Library: Chart.js. Interaction: Hover to see protocol names and values. Justification: Doughnut charts are effective for showing parts of a whole.
-        - Avalanche vs. Ethereum (Compare): An interactive bar chart compares TPS, Finality, and Fees. Goal: Directly highlight Avalanche's key advantages. Library: Chart.js. Interaction: Buttons to switch the displayed metric. Justification: Bar charts are excellent for direct comparison of distinct values.
-        - Core Architecture (Organize): A 3-column layout using HTML/Tailwind with icons and text. Goal: Break down a complex technical concept into digestible parts. Method: Structured HTML. Interaction: None, clarity is the focus. Justification: A simple visual layout is more effective than a complex diagram for this concept.
-        - Subnet Diagram (Organize): A simple hierarchy made with HTML/CSS. Goal: Explain the scaling concept visually. Method: HTML/Tailwind.
-        - Ecosystem Showcase (Organize): A filterable grid of cards. Goal: Allow users to explore the variety of dApps. Method: HTML/JS. Interaction: Filter buttons. Justification: Provides user-controlled discovery.
+        1. Report Info: Q3 2025 Growth (TVL, Active Addr, Tx) -> Goal: Compare QoQ -> Viz: Bar Chart (Chart.js) -> Interaction: Hover Tooltip -> Justification: Clear, direct comparison of key growth vectors.
+        2. Report Info: RWA Growth ($1B+, 322% vol) -> Goal: Show Change -> Viz: Line Chart (Chart.js) -> Interaction: Hover Tooltip -> Justification: Visually captures the strong momentum in the key RWA sector.
+        3. Report Info: Stablecoin Growth ($2.6B) -> Goal: Show Change -> Viz: Line Chart (Chart.js) -> Interaction: Hover Tooltip -> Justification: Demonstrates the foundational liquidity and trust in the ecosystem.
+        4. Report Info: Key Partnerships (BlackRock, SkyBridge, FIFA, etc.) -> Goal: Organize/Inform -> Viz: Interactive HTML List/Grid -> Interaction: Click-to-reveal details (JS toggle) -> Justification: Allows exploration of key business wins without cluttering the UI.
+        5. Report Info: Leadership Commentary (Emin Gün Sirer) -> Goal: Inform (Strategic Context) -> Viz: HTML Text Blocks -> Interaction: JS Toggle (show/hide) -> Justification: Directly surfaces the "why" from leadership, addressing a specific user request.
+        6. Report Info: AVAT Treasury -> Goal: Inform -> Viz: HTML Text Block -> Justification: Highlights a critical new strategic business entity.
     -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-            color: #1F2937;
+            background-color: #f8fafc;
+            color: #1f2937;
         }
         .chart-container {
             position: relative;
@@ -44,470 +39,433 @@
             }
         }
         .nav-link {
-            transition: color 0.2s ease;
-            color: #6B7280;
+            @apply px-4 py-2 text-sm font-medium text-gray-600 rounded-md hover:bg-gray-100 hover:text-gray-900 transition-colors;
         }
-        .nav-link:hover {
-            color: #3B82F6;
+        .nav-link.active {
+            @apply bg-blue-100 text-blue-700;
         }
-        .active-btn {
-            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
-            color: white;
-            border: none;
-            box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+        .stat-card {
+            @apply bg-white p-6 rounded-lg shadow-md border border-gray-100;
         }
-        .inactive-btn {
-            background-color: transparent;
-            color: #6B7280;
-            border: 1px solid #E5E7EB;
+        .toggle-btn {
+            @apply px-4 py-2 text-sm font-medium rounded-md transition-colors;
         }
-        .card {
-            background-color: #FFFFFF;
-            border: 1px solid #E5E7EB;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        .toggle-btn.active {
+            @apply bg-blue-600 text-white;
         }
-        .card:hover {
-            border-color: #3B82F6;
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
-            transform: translateY(-1px);
+        .toggle-btn.inactive {
+            @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
         }
-        .metric-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border: 1px solid #E5E7EB;
-            border-radius: 8px;
-            transition: all 0.2s ease;
+        .partner-tab {
+            @apply px-5 py-3 text-left font-medium text-gray-700 bg-gray-50 border-b border-gray-200 cursor-pointer hover:bg-gray-100;
         }
-        .metric-card:hover {
-            border-color: #3B82F6;
-            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
-        }
-        .primary-accent {
-            color: #3B82F6;
-        }
-        .success-accent {
-            color: #10B981;
-        }
-        .warning-accent {
-            color: #F59E0B;
+        .partner-tab.active {
+            @apply bg-blue-100 text-blue-700;
         }
     </style>
 </head>
-<body class="bg-white text-gray-900">
+<body class="antialiased">
 
-    <header class="bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-200 shadow-sm">
-        <nav class="container mx-auto px-6 py-6 flex justify-between items-center">
-            <h1 class="text-xl font-semibold text-gray-900">
-                <span class="primary-accent">Ava Labs</span> & Avalanche
-            </h1>
-            <div class="hidden md:flex space-x-8">
-                <a href="#overview" class="nav-link font-medium">Overview</a>
-                <a href="#pulse" class="nav-link font-medium">Network Pulse</a>
-                <a href="#tech" class="nav-link font-medium">Technology</a>
-                <a href="#ecosystem" class="nav-link font-medium">Ecosystem</a>
-                <a href="#team" class="nav-link font-medium">Team</a>
+    <header class="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-gray-200">
+        <nav class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex-shrink-0 flex items-center">
+                    <span class="text-xl font-bold text-gray-900">Avalanche</span>
+                    <span class="ml-2 text-xl font-light text-blue-600">Strategic Report</span>
+                </div>
+                <div class="hidden sm:ml-6 sm:flex sm:space-x-4" id="nav-menu">
+                    <a href="#overview" class="nav-link active">Strategic Overview</a>
+                    <a href="#rwa" class="nav-link">Institutional & RWA</a>
+                    <a href="#enterprise" class="nav-link">Enterprise & AI</a>
+                    <a href="#metrics" class="nav-link">Ecosystem Metrics</a>
+                </div>
             </div>
         </nav>
     </header>
 
-    <main class="container mx-auto px-6 py-12">
-        
-        <section id="overview" class="text-center mb-20">
-            <h2 class="text-3xl md:text-4xl font-semibold mb-6 text-gray-900">Digitizing All the World's <span class="primary-accent">Assets</span></h2>
-            <p class="max-w-2xl mx-auto text-gray-600 mb-12">
-                Ava Labs is building Avalanche, a high-performance blockchain platform designed to be <span class="success-accent">fast</span>, <span class="warning-accent">low-cost</span>, and <span class="primary-accent">eco-friendly</span>.
+    <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+        <section id="overview" class="scroll-mt-20">
+            <h1 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Business Lead Briefing: Q4 2025</h1>
+            <p class="mt-4 text-lg text-gray-600">
+                This report summarizes Avalanche's strategic shift towards institutional adoption, real-world asset (RWA) tokenization, and enterprise-grade AI infrastructure. The focus has evolved from purely crypto-native applications to becoming a foundational layer for traditional finance and global corporations.
             </p>
-            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 max-w-5xl mx-auto">
-                <div class="metric-card p-4">
-                    <p class="text-xs font-medium text-gray-500 mb-1">Total Value Locked</p>
-                    <p id="metric-tvl" class="text-xl font-semibold primary-accent"></p>
+
+            <div class="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="stat-card">
+                    <p class="text-sm font-medium text-gray-500">RWA on Avalanche</p>
+                    <p class="mt-1 text-4xl font-bold text-blue-600">$1 Billion+</p>
+                    <p class="mt-2 text-sm text-gray-600">Tokenized real-world assets crossed the $1B milestone, with 30-day transfer volume up <span class="font-semibold text-green-600">+322%</span>.</p>
                 </div>
-                <div class="metric-card p-4">
-                    <p class="text-xs font-medium text-gray-500 mb-1">Daily Transactions</p>
-                    <p id="metric-transactions" class="text-xl font-semibold success-accent"></p>
+                <div class="stat-card">
+                    <p class="text-sm font-medium text-gray-500">New Strategic Vehicle</p>
+                    <p class="mt-1 text-4xl font-bold text-gray-900">AVAT</p>
+                    <p class="mt-2 text-sm text-gray-600">Avalanche Treasury Co. (AVAT) to list on Nasdaq, aiming to build a <span class="font-semibold">$1B+ treasury</span> to actively invest in the ecosystem.</p>
                 </div>
-                <div class="metric-card p-4">
-                    <p class="text-xs font-medium text-gray-500 mb-1">Active Addresses</p>
-                    <p id="metric-addresses" class="text-xl font-semibold primary-accent"></p>
+                <div class="stat-card">
+                    <p class="text-sm font-medium text-gray-500">Q3 2025 Ecosystem Growth (QoQ)</p>
+                    <p class="mt-1 text-4xl font-bold text-green-600">+203%</p>
+                    <p class="mt-2 text-sm text-gray-600">In average daily transactions, with daily active addresses up <span class="font-semibold">+70%</span>.</p>
                 </div>
-                 <div class="metric-card p-4">
-                    <p class="text-xs font-medium text-gray-500 mb-1">Validators</p>
-                    <p id="metric-validators" class="text-xl font-semibold warning-accent"></p>
+            </div>
+
+            <div class="mt-12 bg-white rounded-lg shadow-md border border-gray-100 p-6">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xl font-semibold text-gray-900">Leadership View & Strategy</h3>
+                    <button id="toggle-leadership-btn" class="toggle-btn active">Hide Quotes</button>
                 </div>
-                <div class="metric-card p-4">
-                    <p class="text-xs font-medium text-gray-500 mb-1">Avg. Fee</p>
-                    <p id="metric-fee" class="text-xl font-semibold success-accent"></p>
-                </div>
-                <div class="metric-card p-4">
-                    <p class="text-xs font-medium text-gray-500 mb-1">Finality</p>
-                    <p id="metric-finality" class="text-xl font-semibold primary-accent"></p>
+                <div id="leadership-content" class="mt-4 space-y-4 text-gray-600">
+                    <p>
+                        The overarching strategy, as articulated by leadership, is to "democratize finance" by providing a multi-chain architecture (Subnets) where institutions, governments, and enterprises can build their own custom, high-performance blockchains. The focus is on real-world utility over speculation.
+                    </p>
+                    <blockquote class="pl-4 border-l-4 border-blue-200">
+                        <p class="italic">"It's time to democratize finance entirely. You, me, and everybody else can be on an equal footing with the bankers... The opportunities open to us must be identical."</p>
+                        <cite class="mt-2 block text-sm font-medium text-gray-700 not-italic">&ndash; Emin Gün Sirer, Founder & CEO, Ava Labs</cite>
+                    </blockquote>
+                    <blockquote class="pl-4 border-l-4 border-blue-200">
+                        <p class="italic">"Instead of a single chain to rule them all, Avalanche is more like an umbrella where anyone can create their own chain... a load spike on my chain shall not affect the performance of your chain."</p>
+                        <cite class="mt-2 block text-sm font-medium text-gray-700 not-italic">&ndash; Emin Gün Sirer, on the Subnet Architecture</cite>
+                    </blockquote>
                 </div>
             </div>
         </section>
 
-        <section id="pulse" class="mb-20">
-            <h2 class="text-2xl font-semibold text-center mb-4 text-gray-900">Network Pulse</h2>
-            <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-                Real-time network activity and performance metrics.
+        <section id="rwa" class="scroll-mt-20 mt-16">
+            <h2 class="text-3xl font-bold text-gray-900">Institutional & RWA Deep Dive</h2>
+            <p class="mt-3 text-lg text-gray-600">
+                This is the core of the current business strategy. Avalanche is positioning itself as the premier "institutional layer" for tokenizing real-world assets, from hedge funds and public equity to real estate and government stablecoins.
             </p>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <div class="card p-6">
-                    <h3 class="text-lg font-medium mb-4 text-center text-gray-900">Network Activity</h3>
-                    <div class="chart-container">
-                        <canvas id="networkActivityChart"></canvas>
-                    </div>
-                </div>
-                <div class="card p-6">
-                    <h3 class="text-lg font-medium mb-4 text-center text-gray-900">DeFi TVL Distribution</h3>
-                    <div class="chart-container">
-                        <canvas id="tvlChart"></canvas>
-                    </div>
-                </div>
-                <div class="card p-6 lg:col-span-2">
-                     <h3 class="text-lg font-medium mb-4 text-center text-gray-900">Avalanche vs Ethereum</h3>
-                    <div class="flex justify-center space-x-2 mb-6">
-                        <button id="btn-tps" class="comparison-btn active-btn px-4 py-2 rounded font-medium text-sm">Speed</button>
-                        <button id="btn-finality" class="comparison-btn inactive-btn px-4 py-2 rounded font-medium text-sm">Finality</button>
-                        <button id="btn-fee" class="comparison-btn inactive-btn px-4 py-2 rounded font-medium text-sm">Fees</button>
-                    </div>
-                    <div class="chart-container h-[300px] md:h-[350px]">
-                        <canvas id="comparisonChart"></canvas>
-                    </div>
-                    <p id="comparison-note" class="text-center text-xs text-gray-500 mt-2 h-4"></p>
-                </div>
-            </div>
-        </section>
 
-        <section id="tech" class="mb-20">
-            <h2 class="text-2xl font-semibold text-center mb-4 text-gray-900">Core <span class="primary-accent">Technology</span></h2>
-            <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-                Multi-chain architecture and novel consensus protocol for high performance.
-            </p>
-            <div id="architecture-cards" class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-            </div>
-            <div>
-                <h3 class="text-xl font-semibold text-center mb-4 text-gray-900">Subnets: <span class="success-accent">Infinite Scalability</span></h3>
-                <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">Sovereign networks with custom rules for membership and tokenomics.</p>
-                <div class="max-w-xl mx-auto card p-6">
-                    <div class="flex flex-col items-center">
-                        <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white font-medium py-2 px-4 rounded text-sm">Avalanche Primary Network</div>
-                        <div class="h-8 w-px bg-gray-300 my-3"></div>
-                        <div class="flex flex-col md:flex-row justify-around w-full gap-4">
-                             <div class="flex flex-col items-center">
-                                <div class="bg-green-100 text-green-800 py-2 px-3 rounded text-sm">DeFi Subnet</div>
-                                <div class="text-xs mt-1 text-gray-500">Custom Rules</div>
+            <div class="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                    <h3 class="text-xl font-semibold text-gray-900">Key Institutional Partners</h3>
+                    <p class="mt-2 text-sm text-gray-600">Click a partner to see the engagement details. This demonstrates a clear pattern of adoption by major global financial and government entities.</p>
+                    <div class="mt-4 flex flex-col md:flex-row rounded-lg overflow-hidden border border-gray-200">
+                        <div class="md:w-1/3 flex-shrink-0 flex md:flex-col border-b md:border-b-0 md:border-r border-gray-200" id="partner-tabs">
+                            <button class="partner-tab active" data-target="partner-avat">Avalanche Treasury (AVAT)</button>
+                            <button class="partner-tab" data-target="partner-blackrock">BlackRock</button>
+                            <button class="partner-tab" data-target="partner-skybridge">SkyBridge Capital</button>
+                            <button class="partner-tab" data-target="partner-mirae">Mirae Asset</button>
+                            <button class="partner-tab" data-target="partner-wyoming">Wyoming State</button>
+                            <button class="partner-tab" data-target="partner-bergen">Bergen County, NJ</button>
+                        </div>
+                        <div class="p-6 flex-1" id="partner-content">
+                            <div id="partner-avat" class="partner-pane">
+                                <h4 class="text-lg font-semibold text-gray-900">Avalanche Treasury Co. (AVAT)</h4>
+                                <p class="mt-2 text-gray-700">A new, strategic entity merging with a SPAC to list on Nasdaq (AVAT). Led by G. Bart Smith with Emin Gün Sirer as an adviser.</p>
+                                <ul class="mt-3 list-disc list-inside space-y-1 text-gray-600">
+                                    <li><strong>Goal:</strong> Build a <span class="font-semibold">$1B+ treasury</span> by acquiring AVAX.</li>
+                                    <li><strong>Strategy:</strong> Not a passive holder. It will be an active, strategic partner to the ecosystem.</li>
+                                    <li><strong>Mandate:</strong> 1) Invest in high-promise protocols, 2) Activate enterprise partnerships for RWAs and stablecoins, 3) Run its own validator operations.</li>
+                                </ul>
                             </div>
-                            <div class="flex flex-col items-center">
-                                <div class="bg-purple-100 text-purple-800 py-2 px-3 rounded text-sm">Gaming Subnet</div>
-                                <div class="text-xs mt-1 text-gray-500">High Throughput</div>
+                            <div id="partner-blackrock" class="partner-pane hidden">
+                                <h4 class="text-lg font-semibold text-gray-900">BlackRock</h4>
+                                <p class="mt-2 text-gray-700">The world's largest asset manager is utilizing Avalanche for its tokenization initiatives.</p>
+                                <ul class="mt-3 list-disc list-inside space-y-1 text-gray-600">
+                                    <li><strong>Initiative:</strong> Deployed the BUIDL Fund (BlackRock USD Institutional Digital Liquidity Fund) on the network.</li>
+                                    <li><strong>Scale:</strong> The BUIDL fund holds over <span class="font-semibold">$53.8M in AVAX</span> as part of its operations, with a total fund market cap over $2.9B.</li>
+                                </ul>
                             </div>
-                            <div class="flex flex-col items-center">
-                                <div class="bg-orange-100 text-orange-800 py-2 px-3 rounded text-sm">Enterprise Subnet</div>
-                                <div class="text-xs mt-1 text-gray-500">Permissioned</div>
+                            <div id="partner-skybridge" class="partner-pane hidden">
+                                <h4 class="text-lg font-semibold text-gray-900">SkyBridge Capital</h4>
+                                <p class="mt-2 text-gray-700">Global hedge fund led by Anthony Scaramucci, using Avalanche to tokenize its funds.</p>
+                                <ul class="mt-3 list-disc list-inside space-y-1 text-gray-600">
+                                    <li><strong>Initiative:</strong> Tokenizing <span class="font-semibold">$300 million</span> of its flagship hedge funds.</li>
+                                    <li><strong>Signal:</strong> A major vote of confidence from traditional finance (TradFi) in Avalanche's infrastructure for enhancing investment solutions.</li>
+                                </ul>
+                            </div>
+                            <div id="partner-mirae" class="partner-pane hidden">
+                                <h4 class="text-lg font-semibold text-gray-900">Mirae Asset (South Korea)</h4>
+                                <p class="mt-2 text-gray-700">South Korea's largest asset manager, with over <span class="font-semibold">$316B in AUM</span>.</p>
+                                <ul class="mt-3 list-disc list-inside space-y-1 text-gray-600">
+                                    <li><strong>Initiative:</strong> Signed an MOU with Ava Labs to explore tokenized funds on Avalanche.</li>
+                                    <li><strong>Impact:</strong> Signals a major shift from theory to practical implementation of tokenization in the key South Korean market.</li>
+                                </ul>
+                            </div>
+                            <div id="partner-wyoming" class="partner-pane hidden">
+                                <h4 class="text-lg font-semibold text-gray-900">State of Wyoming</h4>
+                                <p class="mt-2 text-gray-700">A landmark government-level adoption, demonstrating public sector trust.</p>
+                                <ul class="mt-3 list-disc list-inside space-y-1 text-gray-600">
+                                    <li><strong>Initiative:</strong> Officially launched the <span class="font-semibold">Frontier Stable Token (FRNT)</span> on Avalanche.</li>
+                                    <li><strong>Significance:</strong> This is the first fully backed, state-issued stablecoin in the United States, designed for real-world government and commercial use.</li>
+                                </ul>
+                            </div>
+                             <div id="partner-bergen" class="partner-pane hidden">
+                                <h4 class="text-lg font-semibold text-gray-900">Bergen County, NJ</h4>
+                                <p class="mt-2 text-gray-700">A massive-scale public infrastructure project focused on real estate.</p>
+                                <ul class="mt-3 list-disc list-inside space-y-1 text-gray-600">
+                                    <li><strong>Initiative:</strong> Plans to tokenize approximately <span class="font-semibold">$240 Billion</span> in real estate deeds.</li>
+                                    <li><strong>Goal:</strong> To modernize land records, improve transparency, and increase efficiency in real estate transactions.</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-        
-        <section id="ecosystem" class="mb-20">
-            <h2 class="text-2xl font-semibold text-center mb-4 text-gray-900"><span class="primary-accent">Ecosystem</span></h2>
-            <p class="text-center text-gray-600 mb-8 max-w-2xl mx-auto">
-                Leading applications across <span class="success-accent">DeFi</span>, <span class="warning-accent">Gaming</span>, and enterprise solutions.
-            </p>
-             <div class="flex justify-center space-x-2 mb-8">
-                <button class="filter-btn active-btn px-4 py-2 rounded font-medium text-sm" data-filter="all">All</button>
-                <button class="filter-btn inactive-btn px-4 py-2 rounded font-medium text-sm" data-filter="DeFi">DeFi</button>
-                <button class="filter-btn inactive-btn px-4 py-2 rounded font-medium text-sm" data-filter="Gaming">Gaming</button>
-            </div>
-            <div id="ecosystem-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="stat-card">
+                        <h3 class="text-lg font-semibold text-gray-900">RWA Growth (Last 30 Days)</h3>
+                        <div class="chart-container mt-4" style="height: 250px; max-height: 250px;">
+                            <canvas id="rwaGrowthChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <h3 class="text-lg font-semibold text-gray-900">Key RWA Stats</h3>
+                        <ul class="mt-3 space-y-2 text-gray-600">
+                            <li class="flex justify-between"><span>30-Day Transfer Volume:</span> <span class="font-semibold text-green-600">+322%</span></li>
+                            <li class="flex justify-between"><span>Total RWA Holders:</span> <span class="font-semibold text-gray-900">~8,000</span></li>
+                            <li class="flex justify-between"><span>Stablecoin Market Cap:</span> <span class="font-semibold text-gray-900">$2.6B</span></li>
+                            <li class="flex justify-between"><span>Stablecoin 30-Day Growth:</span> <span class="font-semibold text-green-600">+32%</span></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </section>
 
-        <section id="team" class="text-center mb-20">
-            <h2 class="text-2xl font-semibold mb-4 text-gray-900"><span class="primary-accent">Team</span></h2>
-            <p class="text-center text-gray-600 mb-12 max-w-2xl mx-auto">
-                World-class experts in computer science, economics, and finance from <span class="success-accent">Cornell University</span> and <span class="warning-accent">Wall Street</span>.
+        <section id="enterprise" class="scroll-mt-20 mt-16">
+            <h2 class="text-3xl font-bold text-gray-900">Enterprise Adoption & AI Integration</h2>
+            <p class="mt-3 text-lg text-gray-600">
+                Beyond pure finance, Avalanche's Subnet architecture is attracting global brands for custom applications in sports, mobility, and AI.
             </p>
-            <div id="team-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+
+            <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="stat-card">
+                    <h3 class="text-xl font-semibold text-gray-900">FIFA</h3>
+                    <p class="mt-2 text-gray-600">Deployed a <span class="font-semibold">dedicated Layer 1 Subnet</span> for its global fan engagement strategy, including player collectibles, digital ticketing, and exclusive rewards.</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="text-xl font-semibold text-gray-900">Toyota</h3>
+                    <p class="mt-2 text-gray-600">The Toyota Blockchain Lab chose Avalanche for its research into <span class="font-semibold">mobility ecosystems</span>, citing its sub-second finality and ability to launch purpose-built chains.</p>
+                </div>
+                <div class="stat-card">
+                    <h3 class="text-xl font-semibold text-gray-900">South Korea Expansion</h3>
+                    <p class="mt-2 text-gray-600">A major strategic push, including partnerships with <span class="font-semibold">NHN Cloud</span> for validator support, <span class="font-semibold">WeBlock</span> for RWA infrastructure, and <span class="font-semibold">Tixbase</span> for event ticketing.</p>
+                </div>
+            </div>
+
+            <div class="mt-12 bg-white rounded-lg shadow-md border border-gray-100 p-6">
+                <h3 class="text-2xl font-semibold text-gray-900">The New AI Frontier</h3>
+                <p class="mt-2 text-gray-600">Avalanche is actively integrating AI tooling to lower the barrier for developers and power next-generation dApps.</p>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="text-lg font-semibold text-blue-600">Aethir & infraBUIDL(AI) Program</h4>
+                        <p class="mt-2 text-gray-700">A strategic partnership with Aethir, a decentralized GPU cloud provider. Aethir's <span class="font-semibold">$100M Ecosystem Fund</span> will support Avalanche's new <span class="font-semibold">infraBUIDL(AI) Program</span>, providing essential GPU resources to AI projects building on Avalanche.</p>
+                    </div>
+                    <div>
+                        <h4 class="text-lg font-semibold text-blue-600">Avalanche MCP Server</h4>
+                        <p class="mt-2 text-gray-700">A new open-source tool that connects AI assistants (like Claude, or tools in an IDE) directly to the Avalanche network. This allows developers to use <span class="font-semibold">natural language commands ("tell")</span> instead of complex code ("code") to perform blockchain operations, dramatically speeding up development.</p>
+                    </div>
+                </div>
             </div>
         </section>
+
+        <section id="metrics" class="scroll-mt-20 mt-16">
+            <h2 class="text-3xl font-bold text-gray-900">Ecosystem Growth Metrics (Q3 2025)</h2>
+            <p class="mt-3 text-lg text-gray-600">
+                The strategic focus on institutions and enterprise is supported by strong underlying network growth, demonstrating increased usage and adoption.
+            </p>
+            <div class="mt-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                    <h3 class="text-xl font-semibold text-gray-900">Key Growth (Q3 2025 vs Q2)</h3>
+                    <div class="chart-container mt-4">
+                        <canvas id="q3GrowthChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md border border-gray-100">
+                    <h3 class="text-xl font-semibold text-gray-900">Stablecoin Market Cap Growth</h3>
+                    <div class="chart-container mt-4">
+                        <canvas id="stablecoinChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8 stat-card">
+                 <h3 class="text-xl font-semibold text-gray-900">Network Foundations</h3>
+                 <ul class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <li class="border-l-4 border-blue-300 pl-4">
+                        <p class="text-sm font-medium text-gray-500">Active Subnets</p>
+                        <p class="text-2xl font-semibold text-gray-900">100+</p>
+                    </li>
+                    <li class="border-l-4 border-blue-300 pl-4">
+                        <p class="text-sm font-medium text-gray-500">DeFi TVL (Q3)</p>
+                        <p class="text-2xl font-semibold text-gray-900">$2.77 Billion</p>
+                    </li>
+                     <li class="border-l-4 border-blue-300 pl-4">
+                        <p class="text-sm font-medium text-gray-500">DeFi TVL (QoQ)</p>
+                        <p class="text-2xl font-semibold text-green-600">+53%</p>
+                    </li>
+                    <li class="border-l-4 border-blue-300 pl-4">
+                        <p class="text-sm font-medium text-gray-500">Tech Upgrades</p>
+                        <p class="text-2xl font-semibold text-gray-900">Octane/Etna</p>
+                    </li>
+                 </ul>
+            </div>
+        </section>
+
     </main>
 
-    <footer class="bg-white mt-16 border-t border-gray-200">
-        <div class="container mx-auto px-6 py-6 text-center text-gray-500">
-            <p class="text-sm">&copy; 2025 Interactive Report. Data synthesized for illustrative purposes.</p>
+    <footer class="mt-16 border-t border-gray-200 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <p class="text-center text-sm text-gray-500">
+                This report was dynamically generated on October 28, 2025, for interview preparation.
+            </p>
         </div>
     </footer>
 
     <script>
-        const appData = {
-          keyMetrics: {
-            activeAddresses: '79,149',
-            dailyTransactions: '1.27M',
-            tvl: '$2.2B',
-            validatorCount: '904',
-            avgFee: '$0.02',
-            finality: '< 1s'
-          },
-          networkPerformance: {
-            labels: ['Q4 2024', 'Q1 2025', 'Q2 2025', 'Q3 2025'],
-            dailyTransactions: [800000, 1100000, 950000, 1270000],
-            activeAddresses: [55000, 68000, 62000, 79000]
-          },
-          tvlData: {
-            labels: ['Benqi', 'Aave', 'Trader Joe', 'GMX', 'Others'],
-            values: [850, 1024, 450, 300, 576] 
-          },
-          ecosystem: [
-            { name: 'Trader Joe', category: 'DeFi', description: 'A decentralized exchange (DEX) offering trading, staking, and yield farming. It\'s one of the cornerstones of the Avalanche DeFi ecosystem.' },
-            { name: 'Benqi', category: 'DeFi', description: 'A liquid staking and lending protocol, allowing users to lend, borrow, and earn interest on their digital assets.' },
-            { name: 'Aave', category: 'DeFi', description: 'A leading multi-chain lending protocol that allows users to borrow and lend a diverse range of cryptocurrencies.' },
-            { name: 'Shrapnel', category: 'Gaming', description: 'A AAA first-person shooter game built on Avalanche, leveraging subnets for a high-performance gaming experience.' },
-            { name: 'DFK Chain', category: 'Gaming', description: 'A dedicated subnet for the popular fantasy game DeFi Kingdoms, enabling a seamless in-game economy.' }
-          ],
-          architecture: [
-              { name: 'C-Chain (Contract)', icon: '📜', description: 'The EVM-compatible smart contract platform where most dApps, especially DeFi, are built. It allows for easy porting of Ethereum projects.', details: ['EVM-Compatible', 'For Smart Contracts & dApps', 'Optimized for DeFi'] },
-              { name: 'X-Chain (Exchange)', icon: '↔️', description: 'The chain for creating and trading digital assets, including the native AVAX token. It is optimized for high-speed, peer-to-peer transfers.', details: ['Asset Creation & Trading', 'High Throughput', 'Native Home of AVAX'] },
-              { name: 'P-Chain (Platform)', icon: '🏗️', description: 'Coordinates network validators and manages the creation and tracking of subnets. This is where staking occurs.', details: ['Validator Coordination', 'Subnet Management', 'Staking Operations'] }
-          ],
-          comparison: {
-            avalanche: { tps: 4500, finality: 1, fee: 0.05 },
-            ethereum: { tps: 20, finality: 13, fee: 1.50 }
-          },
-          team: [
-              { name: 'Emin Gün Sirer', role: 'CEO & Co-founder', description: 'A distinguished computer scientist from Cornell University, he is a veteran in crypto research, having worked on distributed systems long before Bitcoin.' },
-              { name: 'Kevin Sekniqi', role: 'COO & Co-founder', description: 'Also a PhD from Cornell, he brings expertise in distributed systems, cryptography, and econometrics to the operational leadership of Ava Labs.'},
-              { name: 'John Wu', role: 'President', description: 'With a background on Wall Street, he leads business development, bridging the gap between traditional finance and Web3.' }
-          ]
-        };
-
-        window.addEventListener('DOMContentLoaded', () => {
-            populateMetrics();
-            populateArchitecture();
-            populateEcosystem('all');
-            populateTeam();
-            initCharts();
-            setupEventListeners();
-        });
-
-        function populateMetrics() {
-            document.getElementById('metric-tvl').textContent = appData.keyMetrics.tvl;
-            document.getElementById('metric-transactions').textContent = appData.keyMetrics.dailyTransactions;
-            document.getElementById('metric-addresses').textContent = appData.keyMetrics.activeAddresses;
-            document.getElementById('metric-validators').textContent = appData.keyMetrics.validatorCount;
-            document.getElementById('metric-fee').textContent = appData.keyMetrics.avgFee;
-            document.getElementById('metric-finality').textContent = appData.keyMetrics.finality;
-        }
-
-        function populateArchitecture() {
-            const container = document.getElementById('architecture-cards');
-            let content = '';
-            appData.architecture.forEach(chain => {
-                content += `
-                    <div class="card p-6 text-center">
-                        <div class="text-3xl mb-3">${chain.icon}</div>
-                        <h3 class="text-lg font-semibold mb-2 text-gray-900">${chain.name}</h3>
-                        <p class="text-gray-600 mb-4 text-sm">${chain.description}</p>
-                        <div class="space-y-1">
-                            ${chain.details.map((detail, index) => {
-                                const colors = ['bg-blue-100 text-blue-700', 'bg-green-100 text-green-700', 'bg-purple-100 text-purple-700'];
-                                return `<span class="inline-block ${colors[index % colors.length]} text-xs font-medium mr-1 px-2 py-1 rounded">${detail}</span>`;
-                            }).join('')}
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = content;
-        }
-
-        function populateEcosystem(filter) {
-            const grid = document.getElementById('ecosystem-grid');
-            const filteredItems = filter === 'all' ? appData.ecosystem : appData.ecosystem.filter(item => item.category === filter);
-            grid.innerHTML = '';
-            filteredItems.forEach(item => {
-                const card = document.createElement('div');
-                card.className = 'card p-6 transition-all duration-200 hover:border-gray-300';
-                const categoryColors = {
-                    'DeFi': 'bg-blue-100 text-blue-700',
-                    'Gaming': 'bg-green-100 text-green-700'
-                };
-                card.innerHTML = `
-                    <h3 class="text-lg font-semibold mb-2 text-gray-900">${item.name}</h3>
-                    <span class="inline-block ${categoryColors[item.category] || 'bg-gray-100 text-gray-700'} text-xs font-medium mb-3 px-2 py-1 rounded">${item.category}</span>
-                    <p class="text-gray-600 text-sm">${item.description}</p>
-                `;
-                grid.appendChild(card);
-            });
-        }
-        
-        function populateTeam() {
-            const grid = document.getElementById('team-grid');
-            let content = '';
-            appData.team.forEach(member => {
-                content += `
-                    <div class="card p-6">
-                        <h3 class="text-lg font-semibold text-gray-900">${member.name}</h3>
-                        <p class="text-gray-700 font-medium mb-2 text-sm">${member.role}</p>
-                        <p class="text-gray-600 text-sm">${member.description}</p>
-                    </div>
-                `;
-            });
-            grid.innerHTML = content;
-        }
-        
-        let comparisonChartInstance;
-
-        function initCharts() {
-            const networkCtx = document.getElementById('networkActivityChart').getContext('2d');
-            new Chart(networkCtx, {
-                type: 'line',
-                data: {
-                    labels: appData.networkPerformance.labels,
-                    datasets: [{
-                        label: 'Daily Transactions',
-                        data: appData.networkPerformance.dailyTransactions,
-                        borderColor: '#3B82F6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        tension: 0.3,
-                        yAxisID: 'y',
-                        fill: true,
-                    }, {
-                        label: 'Active Addresses',
-                        data: appData.networkPerformance.activeAddresses,
-                        borderColor: '#10B981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
-                        tension: 0.3,
-                        yAxisID: 'y1',
-                        fill: true,
-                    }]
+        document.addEventListener('DOMContentLoaded', () => {
+            const chartOptions = {
+                maintainAspectRatio: false,
+                responsive: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        enabled: true,
+                        backgroundColor: '#1f2937',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: '#374151',
+                        borderWidth: 1,
+                        displayColors: false
+                    }
                 },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: { position: 'left', title: { display: true, text: 'Transactions'} },
-                        y1: { position: 'right', title: { display: true, text: 'Addresses'}, grid: { drawOnChartArea: false } }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e5e7eb',
+                        },
+                        ticks: {
+                            color: '#6b7280'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            color: '#6b7280'
+                        }
                     }
                 }
-            });
-
-            const tvlCtx = document.getElementById('tvlChart').getContext('2d');
-            new Chart(tvlCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: appData.tvlData.labels,
-                    datasets: [{
-                        label: 'TVL in USD (Millions)',
-                        data: appData.tvlData.values,
-                        backgroundColor: ['#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EF4444'],
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-            
-            updateComparisonChart('tps');
-        }
-        
-        function updateComparisonChart(metric) {
-            const comparisonCtx = document.getElementById('comparisonChart').getContext('2d');
-            const noteElement = document.getElementById('comparison-note');
-            
-            const dataMap = {
-                tps: {
-                    label: 'Transactions Per Second (Higher is Better)',
-                    avalanche: appData.comparison.avalanche.tps,
-                    ethereum: appData.comparison.ethereum.tps,
-                    note: 'Note: A logarithmic scale is used for TPS to visualize the large difference in performance.'
-                },
-                finality: {
-                    label: 'Time to Finality in Seconds (Lower is Better)',
-                    avalanche: appData.comparison.avalanche.finality,
-                    ethereum: appData.comparison.ethereum.finality,
-                    note: ''
-                },
-                fee: {
-                    label: 'Average Fee in USD (Lower is Better)',
-                    avalanche: appData.comparison.avalanche.fee,
-                    ethereum: appData.comparison.ethereum.fee,
-                    note: ''
-                }
             };
 
-            const selectedData = dataMap[metric];
-            noteElement.textContent = selectedData.note;
-
-            const chartData = {
-                labels: ['Avalanche', 'Ethereum'],
-                datasets: [{
-                    label: selectedData.label,
-                    data: [selectedData.avalanche, selectedData.ethereum],
-                    backgroundColor: ['#3B82F6', '#6B7280'],
-                    borderColor: ['#1D4ED8', '#4B5563'],
-                    borderWidth: 1
-                }]
-            };
-
-            if (comparisonChartInstance) {
-                comparisonChartInstance.data.datasets[0].data = [selectedData.avalanche, selectedData.ethereum];
-                comparisonChartInstance.options.plugins.title.text = selectedData.label;
-                comparisonChartInstance.options.scales.x.type = metric === 'tps' ? 'logarithmic' : 'linear';
-                comparisonChartInstance.update();
-            } else {
-                comparisonChartInstance = new Chart(comparisonCtx, {
+            if (document.getElementById('rwaGrowthChart')) {
+                new Chart(document.getElementById('rwaGrowthChart'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Sept 28', 'Oct 5', 'Oct 12', 'Oct 19', 'Oct 25'],
+                        datasets: [{
+                            label: 'RWA Value',
+                            data: [780, 820, 890, 950, 1015],
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: { ...chartOptions, plugins: { ...chartOptions.plugins, legend: { display: true, labels: { color: '#374151' } } } }
+                });
+            }
+            
+            if (document.getElementById('q3GrowthChart')) {
+                new Chart(document.getElementById('q3GrowthChart'), {
                     type: 'bar',
-                    data: chartData,
-                    options: {
-                        indexAxis: 'y',
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            title: { display: true, text: selectedData.label, font: { size: 16 } }
-                        },
-                        scales: {
-                            x: {
-                                beginAtZero: true,
-                                type: metric === 'tps' ? 'logarithmic' : 'linear',
-                            }
-                        }
+                    data: {
+                        labels: ['Avg. Daily Tx', 'Daily Active Addr', 'DeFi TVL'],
+                        datasets: [{
+                            label: 'QoQ Growth',
+                            data: [203, 70, 53],
+                            backgroundColor: ['#2563eb', '#16a34a', '#f59e0b'],
+                        }]
+                    },
+                    options: { ...chartOptions, scales: { ...chartOptions.scales, x: { ...chartOptions.scales.x, ticks: { ...chartOptions.scales.x.ticks, font: { size: 10 } } } } }
+                });
+            }
+            
+            if (document.getElementById('stablecoinChart')) {
+                new Chart(document.getElementById('stablecoinChart'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Sept 28', 'Oct 5', 'Oct 12', 'Oct 19', 'Oct 25'],
+                        datasets: [{
+                            label: 'Stablecoin Market Cap (in $B)',
+                            data: [1.97, 2.1, 2.25, 2.4, 2.6],
+                            borderColor: '#16a34a',
+                            backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: { ...chartOptions, plugins: { ...chartOptions.plugins, legend: { display: true, labels: { color: '#374151' } } } }
+                });
+            }
+
+            const leadershipBtn = document.getElementById('toggle-leadership-btn');
+            const leadershipContent = document.getElementById('leadership-content');
+            if (leadershipBtn) {
+                leadershipBtn.addEventListener('click', () => {
+                    if (leadershipContent.classList.contains('hidden')) {
+                        leadershipContent.classList.remove('hidden');
+                        leadershipBtn.textContent = 'Hide Quotes';
+                        leadershipBtn.classList.add('active');
+                        leadershipBtn.classList.remove('inactive');
+                    } else {
+                        leadershipContent.classList.add('hidden');
+                        leadershipBtn.textContent = 'Show Quotes';
+                        leadershipBtn.classList.add('inactive');
+                        leadershipBtn.classList.remove('active');
                     }
                 });
             }
-        }
 
-        function setupEventListeners() {
-            document.querySelectorAll('.filter-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.replace('active-btn', 'inactive-btn'));
-                    e.target.classList.replace('inactive-btn', 'active-btn');
-                    populateEcosystem(e.target.dataset.filter);
+            const partnerTabs = document.getElementById('partner-tabs');
+            if (partnerTabs) {
+                partnerTabs.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('partner-tab')) {
+                        partnerTabs.querySelectorAll('.partner-tab').forEach(tab => tab.classList.remove('active'));
+                        e.target.classList.add('active');
+                        
+                        const targetId = e.target.getAttribute('data-target');
+                        document.querySelectorAll('.partner-pane').forEach(pane => {
+                            if (pane.id === targetId) {
+                                pane.classList.remove('hidden');
+                            } else {
+                                pane.classList.add('hidden');
+                            }
+                        });
+                    }
                 });
-            });
-
-            document.querySelectorAll('.comparison-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    document.querySelectorAll('.comparison-btn').forEach(btn => btn.classList.replace('active-btn', 'inactive-btn'));
-                    e.target.classList.replace('inactive-btn', 'active-btn');
-                    updateComparisonChart(e.target.id.split('-')[1]);
-                });
-            });
+            }
             
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
+            const navLinks = document.querySelectorAll('#nav-menu a');
+            const sections = document.querySelectorAll('section');
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        navLinks.forEach(link => {
+                            link.classList.remove('active');
+                            if (link.getAttribute('href') === `#${entry.target.id}`) {
+                                link.classList.add('active');
+                            }
+                        });
+                    }
+                });
+            }, { rootMargin: '-50% 0px -50% 0px', threshold: 0 });
+
+            sections.forEach(section => observer.observe(section));
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
                     e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    document.querySelector(link.getAttribute('href')).scrollIntoView({
                         behavior: 'smooth'
                     });
                 });
             });
-        }
-
+        });
     </script>
 </body>
 </html>
-
-
-
